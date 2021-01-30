@@ -70,16 +70,18 @@ const Grid = () => {
             return () => window.removeEventListener("resize", generateCTX) 
         }, [w,h])
         
-        
+
         //When Mouse is clicked take the current positions to calculate which part of the Grid to convert to an obstacle
         const startDraw = ({nativeEvent}) =>{
-            const {offsetX, offsetY} = nativeEvent
-            console.log(offsetX + " , " + offsetY )
-            const x = Math.floor(offsetX/scalingX)
-            const y = Math.floor(offsetY/scalingY)
-            arr[x][y] = 'b';
-            updateArr(x,y)
-            setIsDrawing(true)
+            if(nativeEvent.which === 1){
+                const {offsetX, offsetY} = nativeEvent
+                console.log(offsetX + " , " + offsetY )
+                const x = Math.floor(offsetX/scalingX)
+                const y = Math.floor(offsetY/scalingY)
+                arr[x][y] = 'b';
+                updateArr(x,y)
+                setIsDrawing(true)
+            }
         }
         
         //Stop drawing and reset the useState   
