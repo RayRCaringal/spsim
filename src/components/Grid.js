@@ -4,8 +4,10 @@ import React from "react"
 import {useEffect, useRef, useState } from "react"
 import "../style/grid.css"    
 let arr;
-let ctx
-let w,h,scalingX,scalingY
+let ctx, w,h,scalingX,scalingY,currentColor
+let startMade = false;
+let endMade = false;
+
 const Grid = () => {
     
     
@@ -77,7 +79,6 @@ const Grid = () => {
         const canvasRef = useRef(null)
         const contextRef = useRef(null)
         const [isDrawing, setIsDrawing] = useState(false)
-        const [currentColor, setCurrentColor] = useState('b')
         
         //Fixed Size for Now, Optionally Change it for later 
         const size = 25
@@ -100,17 +101,37 @@ const Grid = () => {
             const x = Math.floor(offsetX/scalingX)
             const y = Math.floor(offsetY/scalingY)
             console.log(offsetX + " , " + offsetY )
-            if(nativeEvent.which === 1){
-                if(arr[x][y] == 'b'){
+            //Left Click Only 
+            if(nativeEvent.which === 1 && arr[x][y] != 's' && arr[x][y] != 'e' ){
+                //Erase Node
+                if(arr[x][y] != 'a'){
                     arr[x][y] = 'a'
-                    setCurrentColor('a')
-                }else{
+                    currentColor = 'a'
+                }
+                
+                //Create Node
+                else{
                     arr[x][y] = 'b';
-                    setCurrentColor('b')
+                    currentColor = 'b'
                 }
                 setIsDrawing(true)
             }else{
-                arr[x][y] = 's';
+                console.log(startMade)
+                console.log(endMade)
+
+                if(arr[x][y] == 's'){
+                    startMade = false;
+                    arr[x][y] = 'a'
+                }else if(arr[x][y] == 'e'){
+                    endMade = false;
+                    arr[x][y] = 'a'
+                }else if(!startMade){
+                    arr[x][y] = 's';
+                    startMade = true;
+                }else if(!endMade){
+                    arr[x][y] = 'e';
+                    endMade = true;
+                }
             }
             updateArr(x,y)
         }
@@ -127,8 +148,10 @@ const Grid = () => {
                 const {offsetX, offsetY} = nativeEvent
                 const x = Math.floor(offsetX/scalingX)
                 const y = Math.floor(offsetY/scalingY)
-                arr[x][y] = currentColor;
-                updateArr(x,y)
+                if(arr[x][y] != 's' && arr[x][y] != 'e' ){
+                    arr[x][y] = currentColor;
+                    updateArr(x,y)
+                }
             }
         }
         
