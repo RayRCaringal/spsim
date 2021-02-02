@@ -10,7 +10,6 @@ let endMade = false;
 
 const Grid = () => {
     
-    
     const updateArr = (x,y) =>{
         switch(arr[x][y]){
             case 'b':
