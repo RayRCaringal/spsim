@@ -1,41 +1,66 @@
 // For the Grid Component Size N x N
-
 import React from "react"
-import {useEffect, useRef, useState } from "react"
+import {useEffect, useRef, useState, useContext } from "react"
 import "../style/grid.css"    
-let arr;
-let ctx, w,h,scalingX,scalingY,currentColor
-let startMade = false;
-let endMade = false;
+import {GridContext} from './Store'
+
+let arr, ctx, w,h,scalingX,scalingY,currentColor, start, goal
+//let startMade = false;
+//let endMade = false;
+
+//Exporting the grid and coordinates for use in other methods 
+//module.exports = {arr,start,goal}
+
+
+console.log("Before")
+//console.log(scan([0,0],[46,97]))
+const updateArr = (x,y) =>{
+    console.log("Updating Arr")
+    switch(arr[x][y]){
+        case 'b':
+            ctx.fillStyle = "#1B2631"
+            break;
+        case 's':
+            ctx.fillStyle = '#217BAF'
+            break;
+        case 'e':
+            ctx.fillStyle = '#C12051'
+            break;
+        case 'p':
+            ctx.fillStyle = '#D536EB'
+            break;
+        default:
+            ctx.fillStyle = "#F3F3F3" 
+    }
+    ctx.fillRect(x*(Math.floor((window.innerWidth*2)/w))+3,
+    y*(Math.floor((window.innerHeight*2)/h))+3,
+    Math.floor((window.innerWidth*2)/w)-6,
+    Math.floor((window.innerHeight*2)/h)-6)
+}
 
 const Grid = () => {
     
-    const updateArr = (x,y) =>{
-        switch(arr[x][y]){
-            case 'b':
-                ctx.fillStyle = "#1B2631"
-                break;
-            case 's':
-                ctx.fillStyle = '#217BAF'
-                break;
-            case 'e':
-                ctx.fillStyle = '#C12051'
-                break;
-            default:
-                ctx.fillStyle = "#F3F3F3" 
-        }
-        ctx.fillRect(x*(Math.floor((window.innerWidth*2)/w))+3,
-        y*(Math.floor((window.innerHeight*2)/h))+3,
-        Math.floor((window.innerWidth*2)/w)-6,
-        Math.floor((window.innerHeight*2)/h)-6)
-    }
+    //CURRENT ISSUE IS THE STATES AREN'T WORKING PROPERLY. For some reason the states seem to be linked, it's also messing up the Arr. Though this must be tested with prior version 
+
+
+    //Deconstructing Object in useContext
+    const test = useContext(GridContext)
+    const {start,end} = useContext(GridContext) 
+
+    console.log(test)
+
+
+    //Deconstructing back into useState elements 
+    const [startMade, setStartMade, other] = start
+    const [endMade, setEndMade] = end
+
+    console.log("Start: " +startMade+ " End: " +endMade)
+
     
     //Set Canvas Dimensions and rebuild grid  
     const generateCTX = () =>{
-        console.log("In CTX")
         scalingX = Math.floor((window.innerWidth*2)/w)-1.5
         scalingY = Math.floor((window.innerHeight*2)/h)-1
-        console.log(arr)
         const canvas = canvasRef.current
         canvas.width = window.innerWidth*2
         canvas.height = window.innerHeight*2
@@ -72,7 +97,6 @@ const Grid = () => {
                 }
             }
             ctx.fillStyle = "#1B2631"
-            console.log("Create Rect")
         }
         
         const canvasRef = useRef(null)
@@ -84,7 +108,6 @@ const Grid = () => {
 
         //Run only once 
         useEffect(() => {
-            console.log("Before fill")
             w = Math.floor((window.innerWidth - 6 * size)/size);
             h = Math.floor((window.innerHeight -6 * size)/size);
             arr = Array(w).fill().map(() => Array(h).fill('a'));      
@@ -95,15 +118,16 @@ const Grid = () => {
         
 
         //When Mouse is clicked take the current positions to calculate which part of the Grid to convert to an obstacle
+    
         const startDraw = ({nativeEvent}) =>{
             const {offsetX, offsetY} = nativeEvent
             const x = Math.floor(offsetX/scalingX)
             const y = Math.floor(offsetY/scalingY)
             console.log(offsetX + " , " + offsetY )
             //Left Click Only 
-            if(nativeEvent.which === 1 && arr[x][y] != 's' && arr[x][y] != 'e' ){
+            if(nativeEvent.which === 1 && arr[x][y] !== 's' && arr[x][y] !== 'e' ){
                 //Erase Node
-                if(arr[x][y] != 'a'){
+                if(arr[x][y] !== 'a'){
                     arr[x][y] = 'a'
                     currentColor = 'a'
                 }
@@ -114,22 +138,31 @@ const Grid = () => {
                     currentColor = 'b'
                 }
                 setIsDrawing(true)
-            }else{
-                console.log(startMade)
-                console.log(endMade)
-
-                if(arr[x][y] == 's'){
-                    startMade = false;
+            }
+            //Right Click
+            else{
+                //THIS CAN BE OPTIMIZED LATER 
+                if(arr[x][y] === 's'){ //Delete Start 
+                    console.log("Should be false now")
+                    setStartMade(false)
+                    //startMade = false;
                     arr[x][y] = 'a'
-                }else if(arr[x][y] == 'e'){
-                    endMade = false;
+                }else if(arr[x][y] === 'e'){//Delete Goal
+                    console.log("Goal2")
+                    setEndMade(false)
+                    //endMade = false;
                     arr[x][y] = 'a'
-                }else if(!startMade){
+                }else if(!startMade){//Create Start
+                    console.log("Start")
                     arr[x][y] = 's';
-                    startMade = true;
-                }else if(!endMade){
+                    setStartMade(true)
+                    //startMade = true;
+                }else if(!endMade){//Create Goal
                     arr[x][y] = 'e';
-                    endMade = true;
+                    console.log("Goal1")
+
+                    setEndMade(true)
+                    //endMade = true;
                 }
             }
             updateArr(x,y)
@@ -147,12 +180,12 @@ const Grid = () => {
                 const {offsetX, offsetY} = nativeEvent
                 const x = Math.floor(offsetX/scalingX)
                 const y = Math.floor(offsetY/scalingY)
-                if(arr[x][y] != 's' && arr[x][y] != 'e' ){
+                if(arr[x][y] !== 's' && arr[x][y] !== 'e' ){
                     arr[x][y] = currentColor;
                     updateArr(x,y)
                 }
             }
-        }
+        }    
         
         return (
             <canvas id = ".node"
