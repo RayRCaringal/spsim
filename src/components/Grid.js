@@ -2,7 +2,8 @@
 import React from "react"
 import {useEffect, useRef, useState, useContext } from "react"
 import "../style/grid.css"    
-import {GridContext} from './Store'
+import {useSelector, useDispatch} from 'react-redux'
+import {changeStart,changeEnd} from '../actions'
 
 let arr, ctx, w,h,scalingX,scalingY,currentColor, start, goal
 //let startMade = false;
@@ -40,21 +41,25 @@ const updateArr = (x,y) =>{
 
 const Grid = () => {
     
+    
+    const dispatch = useDispatch()
+    const startMade = useSelector(state => state.start)
+    const endMade = useSelector(state => state.end)
+
     //CURRENT ISSUE IS THE STATES AREN'T WORKING PROPERLY. For some reason the states seem to be linked, it's also messing up the Arr. Though this must be tested with prior version 
 
 
     //Deconstructing Object in useContext
-    const test = useContext(GridContext)
-    const {start,end} = useContext(GridContext) 
+    //const test = useContext(GridContext)
+    //const {start,end} = useContext(GridContext) 
 
-    console.log(test)
+    //console.log(test)
 
 
     //Deconstructing back into useState elements 
-    const [startMade, setStartMade, other] = start
-    const [endMade, setEndMade] = end
+    //const [startMade, setStartMade, other] = start
+    //const [endMade, setEndMade] = end
 
-    console.log("Start: " +startMade+ " End: " +endMade)
 
     
     //Set Canvas Dimensions and rebuild grid  
@@ -105,21 +110,23 @@ const Grid = () => {
         
         //Fixed Size for Now, Optionally Change it for later 
         const size = 25
+        w = Math.floor((window.innerWidth - 6 * size)/size);
+        h = Math.floor((window.innerHeight -6 * size)/size);
 
         //Run only once 
-        useEffect(() => {
-            w = Math.floor((window.innerWidth - 6 * size)/size);
-            h = Math.floor((window.innerHeight -6 * size)/size);
-            arr = Array(w).fill().map(() => Array(h).fill('a'));      
-            generateCTX()
+        useEffect(()=>{
+            arr = Array(w).fill().map(() => Array(h).fill('a'));  
+            generateCTX()    
             window.addEventListener("resize", generateCTX);
             return () => window.removeEventListener("resize", generateCTX) 
-        }, [w,h])
+        },[])
         
 
         //When Mouse is clicked take the current positions to calculate which part of the Grid to convert to an obstacle
     
         const startDraw = ({nativeEvent}) =>{
+             console.log("Start: " +startMade+ " End: " +endMade)
+
             const {offsetX, offsetY} = nativeEvent
             const x = Math.floor(offsetX/scalingX)
             const y = Math.floor(offsetY/scalingY)
@@ -144,24 +151,29 @@ const Grid = () => {
                 //THIS CAN BE OPTIMIZED LATER 
                 if(arr[x][y] === 's'){ //Delete Start 
                     console.log("Should be false now")
-                    setStartMade(false)
+                    //setStartMade(false)
                     //startMade = false;
+                    dispatch(changeStart())
                     arr[x][y] = 'a'
                 }else if(arr[x][y] === 'e'){//Delete Goal
                     console.log("Goal2")
-                    setEndMade(false)
+                    //setEndMade(false)
                     //endMade = false;
+                    dispatch(changeEnd())
+
                     arr[x][y] = 'a'
                 }else if(!startMade){//Create Start
+                    dispatch(changeStart())
                     console.log("Start")
                     arr[x][y] = 's';
-                    setStartMade(true)
+                    //setStartMade(true)
                     //startMade = true;
                 }else if(!endMade){//Create Goal
                     arr[x][y] = 'e';
                     console.log("Goal1")
-
-                    setEndMade(true)
+                    dispatch(changeEnd())
+                    
+                    //setEndMade(true)
                     //endMade = true;
                 }
             }

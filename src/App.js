@@ -1,10 +1,10 @@
-import {Container, Navbar, Jumbotron } from 'react-bootstrap'
+import {Container, Navbar, Jumbotron, Form } from 'react-bootstrap'
 import Grid from './components/Grid'
 import StartButton from './components/StartButton'
 import './style/App.scss'
 import GridProvider from './components/Store'
-//import 'bootstrap/dist/css/bootstrap.min.css';
 
+//import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 
