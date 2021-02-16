@@ -2,8 +2,6 @@
 import React from "react"
 import {useEffect, useRef, useState, useContext } from "react"
 import "../style/grid.css"    
-import {useSelector, useDispatch} from 'react-redux'
-import {changeStart,changeEnd} from '../actions'
 import {GridContext} from './Store'
 
 let arr, ctx, w,h,scalingX,scalingY,currentColor, start, goal
@@ -41,19 +39,8 @@ const updateArr = (x,y) =>{
 }
 
 const Grid = () => {
-    
-    
-    const dispatch = useDispatch()
-    //const startMade = useSelector(state => state.start)
-    //const endMade = useSelector(state => state.end)
-
-    //CURRENT ISSUE IS THE STATES AREN'T WORKING PROPERLY. For some reason the states seem to be linked, it's also messing up the Arr. Though this must be tested with prior version 
-
-
     //Deconstructing Object in useContext
     const {start,end} = useContext(GridContext) 
-
-
 
     //Deconstructing back into useState elements 
     const [startMade, setStartMade, other] = start
@@ -147,33 +134,21 @@ const Grid = () => {
             }
             //Right Click
             else{
-                //THIS CAN BE OPTIMIZED LATER 
                 if(arr[x][y] === 's'){ //Delete Start 
                     console.log("Should be false now")
                     setStartMade(false)
-                    //startMade = false;
-                    //dispatch(changeStart())
                     arr[x][y] = 'a'
                 }else if(arr[x][y] === 'e'){//Delete Goal
                     console.log("Goal2")
                     setEndMade(false)
-                    //endMade = false;
-                    //dispatch(changeEnd())
-
                     arr[x][y] = 'a'
                 }else if(!startMade){//Create Start
-                    //dispatch(changeStart())
                     console.log("Start")
                     arr[x][y] = 's';
                     setStartMade(true)
-                    //startMade = true;
                 }else if(!endMade){//Create Goal
-                    arr[x][y] = 'e';
-                    console.log("Goal1")
-                    //dispatch(changeEnd())
-                    
+                    arr[x][y] = 'e';       
                     setEndMade(true)
-                    //endMade = true;
                 }
             }
             updateArr(x,y)
@@ -200,13 +175,12 @@ const Grid = () => {
         
         return (
             <canvas id = ".node"
-            onMouseDown = {startDraw}
-            onContextMenu = {(e)=>{e.preventDefault()}}
-            onMouseUp = {endDraw}
-            onMouseMove = {draw}
-            ref={canvasRef}
+                onMouseDown = {startDraw}
+                onContextMenu = {(e)=>{e.preventDefault()}}
+                onMouseUp = {endDraw}
+                onMouseMove = {draw}
+                ref={canvasRef}
             />
-            
             )
         }
         

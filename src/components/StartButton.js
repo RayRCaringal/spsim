@@ -1,9 +1,9 @@
 import {Button} from 'react-bootstrap'
 import {scan, AStar} from "../AStar";
 import {updateArr} from "./Grid";
-import {useContext, useEffect} from "react"
+import {useContext} from "react"
 import {GridContext} from './Store'
-import {useSelector} from 'react-redux'
+
 
 /* eslint-disable */
 
@@ -12,8 +12,6 @@ let startMade, setStartMade, endMade, setEndMade
 
 const StartButton = () => {
 
-    //const startMade = useSelector(state => state.start)
-    //const endMade = useSelector(state => state.end)
     //Importing Grid and Coordinates to pass into AStar 
     //let {arr,start,goal} = require('./Grid')
     /*
@@ -42,13 +40,6 @@ const StartButton = () => {
     const [startMade, setStartMade] = s
     const [endMade, setEndMade] = e
     
-    
-  
-
-
-    //const [isDisabled, setIsDisabled] = useState(false)
-
-
     return (
         <Button className = "mx-auto" 
             disabled = {!(startMade  && endMade)}>
