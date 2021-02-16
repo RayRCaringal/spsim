@@ -4,6 +4,7 @@ import {useEffect, useRef, useState, useContext } from "react"
 import "../style/grid.css"    
 import {useSelector, useDispatch} from 'react-redux'
 import {changeStart,changeEnd} from '../actions'
+import {GridContext} from './Store'
 
 let arr, ctx, w,h,scalingX,scalingY,currentColor, start, goal
 //let startMade = false;
@@ -43,22 +44,20 @@ const Grid = () => {
     
     
     const dispatch = useDispatch()
-    const startMade = useSelector(state => state.start)
-    const endMade = useSelector(state => state.end)
+    //const startMade = useSelector(state => state.start)
+    //const endMade = useSelector(state => state.end)
 
     //CURRENT ISSUE IS THE STATES AREN'T WORKING PROPERLY. For some reason the states seem to be linked, it's also messing up the Arr. Though this must be tested with prior version 
 
 
     //Deconstructing Object in useContext
-    //const test = useContext(GridContext)
-    //const {start,end} = useContext(GridContext) 
+    const {start,end} = useContext(GridContext) 
 
-    //console.log(test)
 
 
     //Deconstructing back into useState elements 
-    //const [startMade, setStartMade, other] = start
-    //const [endMade, setEndMade] = end
+    const [startMade, setStartMade, other] = start
+    const [endMade, setEndMade] = end
 
 
     
@@ -151,29 +150,29 @@ const Grid = () => {
                 //THIS CAN BE OPTIMIZED LATER 
                 if(arr[x][y] === 's'){ //Delete Start 
                     console.log("Should be false now")
-                    //setStartMade(false)
+                    setStartMade(false)
                     //startMade = false;
-                    dispatch(changeStart())
+                    //dispatch(changeStart())
                     arr[x][y] = 'a'
                 }else if(arr[x][y] === 'e'){//Delete Goal
                     console.log("Goal2")
-                    //setEndMade(false)
+                    setEndMade(false)
                     //endMade = false;
-                    dispatch(changeEnd())
+                    //dispatch(changeEnd())
 
                     arr[x][y] = 'a'
                 }else if(!startMade){//Create Start
-                    dispatch(changeStart())
+                    //dispatch(changeStart())
                     console.log("Start")
                     arr[x][y] = 's';
-                    //setStartMade(true)
+                    setStartMade(true)
                     //startMade = true;
                 }else if(!endMade){//Create Goal
                     arr[x][y] = 'e';
                     console.log("Goal1")
-                    dispatch(changeEnd())
+                    //dispatch(changeEnd())
                     
-                    //setEndMade(true)
+                    setEndMade(true)
                     //endMade = true;
                 }
             }

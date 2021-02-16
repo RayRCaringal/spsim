@@ -12,8 +12,8 @@ let startMade, setStartMade, endMade, setEndMade
 
 const StartButton = () => {
 
-    const startMade = useSelector(state => state.start)
-    const endMade = useSelector(state => state.end)
+    //const startMade = useSelector(state => state.start)
+    //const endMade = useSelector(state => state.end)
     //Importing Grid and Coordinates to pass into AStar 
     //let {arr,start,goal} = require('./Grid')
     /*
@@ -35,6 +35,18 @@ const StartButton = () => {
 
     }
     */
+    
+    const {start:s,end:e} = useContext(GridContext) 
+
+    //Deconstructing back into useState elements 
+    const [startMade, setStartMade] = s
+    const [endMade, setEndMade] = e
+    
+    
+  
+
+
+    //const [isDisabled, setIsDisabled] = useState(false)
 
 
     return (
