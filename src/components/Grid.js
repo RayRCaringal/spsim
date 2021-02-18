@@ -1,20 +1,16 @@
 // For the Grid Component Size N x N
 import React from "react"
 import {useEffect, useRef, useState, useContext } from "react"
-import { ToggleButton } from "react-bootstrap"
+import {scan, AStar} from "../AStar";
+import {Container, Navbar, Jumbotron, Form, Button } from 'react-bootstrap'
 import "../style/grid.css"    
-import {useNodeContext, useNodeUpdate} from './NodeProvider'
 
-let ctx, w,h,scalingX,scalingY,currentColor, start, goal
+let ctx, w,h,scalingX,scalingY,currentColor, arr
+let start = [0,0]
+let goal = [0,0]
 
-
-//Exporting the grid and coordinates for use in other methods 
-//module.exports = {arr,startCord,goalCord}
-
-
-
-//console.log(scan([0,0],[46,97]))
-const updateColor = (arr,x,y) =>{
+console.log(scan([0,0],[46,97]))
+const updateColor = (x,y) =>{
     console.log("Updating Arr")
     switch(arr[x][y]){
         case 'b':
@@ -38,9 +34,23 @@ const updateColor = (arr,x,y) =>{
     Math.floor((window.innerHeight*2)/h)-6)
 }
 
-const Grid = () => {
+/*
+const visualize = ()=>{
 
-    
+    //Path is the Final Node, should either be the goal or the node before the goal. 
+    let path = AStar(start, goal, 1, arr)
+
+    //Trace the shortest path via the parentNode. Update grid with g 
+    while(JSON.stringify(path) != JSON.stringify(path.parentNode)){
+        let [x,y] = path.position
+        arr[x][y] = 'p'
+        path = path.parentNode
+    }
+    updateColor()
+}
+*/
+
+const Grid = () => {
     //Set Canvas Dimensions and rebuild grid  
     const generateCTX = () =>{
         scalingX = Math.floor((window.innerWidth*2)/w)-1.5
@@ -86,18 +96,14 @@ const Grid = () => {
     const canvasRef = useRef(null)
     const contextRef = useRef(null)
     const [isDrawing, setIsDrawing] = useState(false)
+    const [startMade, setStartMade] = useState(false)
+    const [endMade, setEndMade] = useState(false)
         
     //Fixed Size for Now, Optionally Change it for later 
     const size = 25
     w = Math.floor((window.innerWidth - 6 * size)/size);
     h = Math.floor((window.innerHeight -6 * size)/size);    
     
-    //Deconstructing Context
-    let {start:[startMade, setStartMade] ,end: [endMade, setEndMade], grid: [arr, setArr]} = useNodeContext()
-    const update = useNodeUpdate()
-    
-    
-
     //Run only once 
     useEffect(()=>{
         arr = Array(w).fill().map(() => Array(h).fill('a'));  
@@ -108,54 +114,34 @@ const Grid = () => {
         
 
     //When Mouse is clicked take the current positions to calculate which part of the Grid to convert to an obstacle
-    
     const startDraw = ({nativeEvent}) =>{
-        //console.log("Start: " +startMade+ " End: " +endMade)
-        console.log(arr)
-
         const {offsetX, offsetY} = nativeEvent
         const x = Math.floor(offsetX/scalingX)
         const y = Math.floor(offsetY/scalingY)
-        console.log(offsetX + " , " + offsetY )
+        //console.log(offsetX + " , " + offsetY )
+
         //Left Click Only 
         if(nativeEvent.which === 1 && arr[x][y] !== 's' && arr[x][y] !== 'e' ){
-            //Erase Node
-            if(arr[x][y] !== 'a'){
-                arr[x][y] = 'a'
-                currentColor = 'a'
-            }
-                
-            //Create Node
-            else{
-                arr[x][y] = 'b';
-                currentColor = 'b'
-            }
-            setIsDrawing(true)
+           currentColor = arr[x][y] = (arr[x][y] != 'a')? 'a' : 'b'
+           setIsDrawing(true)
         }
         //Right Click
         else{
             if(arr[x][y] === 's'){ //Delete Start 
-                console.log("Should be false now")
-                update("start")
-                //setStartMade(false)
+                setStartMade(false)
                 arr[x][y] = 'a'
             }else if(arr[x][y] === 'e'){//Delete Goal
-                console.log("Goal2")
-                update("end")
-                //setEndMade(false)
+                setEndMade(false)
                 arr[x][y] = 'a'
             }else if(!startMade){//Create Start
-                console.log("Start")
                 arr[x][y] = 's';
-                update("start")
-                //setStartMade(true)
+                setStartMade(true)
             }else if(!endMade){//Create Goal
                 arr[x][y] = 'e';       
-                //setEndMade(true)
-                update("end")    
+                setEndMade(true)  
                 }
             }
-            updateColor(arr,x,y)
+            updateColor(x,y)
         }
         
     //Stop drawing and reset the useState   
@@ -178,13 +164,26 @@ const Grid = () => {
     }    
         
         return (
-            <canvas id = ".node"
-                onMouseDown = {startDraw}
-                onContextMenu = {(e)=>{e.preventDefault()}}
-                onMouseUp = {endDraw}
-                onMouseMove = {draw}
-                ref={canvasRef}
-            />
+            <>
+                <Navbar bg = "dark" variant = "dark">
+                    <Container>
+                        <Navbar.Brand> Shortest Path Simulator</Navbar.Brand>
+                    </Container>
+                    <Button className = "mx-auto" 
+                        disabled = {!(startMade  && endMade)}>
+                            Start
+                    </Button> 
+                </Navbar>
+                <Jumbotron className = "p-1">
+                <canvas id = ".node"
+                    onMouseDown = {startDraw}
+                    onContextMenu = {(e)=>{e.preventDefault()}}
+                    onMouseUp = {endDraw}
+                    onMouseMove = {draw}
+                    ref={canvasRef}
+                />
+                </Jumbotron>
+            </>
             )
         }
         
