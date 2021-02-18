@@ -2,7 +2,7 @@ import {Button} from 'react-bootstrap'
 import {scan, AStar} from "../AStar";
 import {updateArr} from "./Grid";
 import {useContext} from "react"
-import {GridContext} from './Store'
+import {NodeContext} from './NodeProvider'
 
 
 /* eslint-disable */
@@ -13,7 +13,7 @@ let startMade, setStartMade, endMade, setEndMade
 const StartButton = () => {
 
     //Importing Grid and Coordinates to pass into AStar 
-    //let {arr,start,goal} = require('./Grid')
+    //let {arr,startCord,goalCord} = require('./Grid')
     /*
     const visualize = ()=>{
 
@@ -34,7 +34,7 @@ const StartButton = () => {
     }
     */
     
-    const {start:s,end:e} = useContext(GridContext) 
+    const {start:s,end:e} = useContext(NodeContext) 
 
     //Deconstructing back into useState elements 
     const [startMade, setStartMade] = s
