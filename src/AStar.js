@@ -1,8 +1,5 @@
 
-//x1, y1 = node
-// x2, y2 = goal 
-//D = 1
-//D2 = sqrt(2)
+/* eslint-disable */
 const heuristics = (()=>{
     const eucledean = ([x1,y1],[x2,y2]) => Math.sqrt((((x1 - x2) ** 2) + ((y1 - y2) ** 2)))
     const manhattan = ([x1,y1],[x2,y2]) => Math.abs(x1-x2) + Math.abs(y1-y2)
@@ -19,9 +16,7 @@ const heuristics = (()=>{
 })();
 
 //Returns all the neighbors of a node in a 3x3 area surronding the initial node 
-const scan = ([x,y], [w,h]) =>{
-    console.log(w)
-    console.log(h)
+export const scan = ([x,y], [w,h]) =>{
     const offset = [
         [-1,1],[0,1],[1,1],[-1,0],[1,0],[-1,-1],[0,-1],[1,-1]
     ] 
@@ -43,8 +38,14 @@ const Node = (parentNode, position)=>{
 }
 
 
-// A* Search Algorithm
-const AStar = (start, goal, weight, grid)=>{
+/**
+ * A* Search Algorithm
+ * @param {Array.<Number>} start node coordinates [x,y] 
+ * @param {Array.<Number>} goal node coordinates [x,y] 
+ * @param {Number} weight the weight of each node
+ * @param {Array.<Character>} grid 2D array to be searched
+ */
+export const AStar = (start, goal, weight, grid)=>{
     let visited = [], fringe = []
     let nodeStart = Node(start,start)
     fringe.push(nodeStart)
@@ -93,5 +94,11 @@ const testGrid = [
 ]
 
 
-let testNode = AStar([0,0],[2,3], 1, testGrid)
-console.log(testNode)
+//let testNode = AStar([0,0],[2,3], 1, testGrid)
+//console.log(testNode)
+
+
+//x1, y1 = node
+// x2, y2 = goal 
+//D = 1
+//D2 = sqrt(2)
