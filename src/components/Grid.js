@@ -6,12 +6,12 @@ import {Container, Navbar, Jumbotron, Form, Button } from 'react-bootstrap'
 import "../style/grid.css"    
 
 let ctx, w,h,scalingX,scalingY,currentColor, arr
-let start = [0,0]
-let goal = [0,0]
+let start
+let goal
+
 
 console.log(scan([0,0],[46,97]))
 const updateColor = (x,y) =>{
-    console.log("Updating Arr")
     switch(arr[x][y]){
         case 'b':
             ctx.fillStyle = "#1B2631"
@@ -23,7 +23,7 @@ const updateColor = (x,y) =>{
             ctx.fillStyle = '#C12051'
             break;
         case 'p':
-            ctx.fillStyle = '#D536EB'
+            ctx.fillStyle = '#14F7AF'
             break;
         default:
             ctx.fillStyle = "#F3F3F3" 
@@ -34,23 +34,32 @@ const updateColor = (x,y) =>{
     Math.floor((window.innerHeight*2)/h)-6)
 }
 
-/*
+
 const visualize = ()=>{
 
     //Path is the Final Node, should either be the goal or the node before the goal. 
     let path = AStar(start, goal, 1, arr)
 
     //Trace the shortest path via the parentNode. Update grid with g 
-    while(JSON.stringify(path) != JSON.stringify(path.parentNode)){
+    while(JSON.stringify(path.parentNode.position) != JSON.stringify(path.parentNode.parentNode)){
+        path = path.parentNode
         let [x,y] = path.position
         arr[x][y] = 'p'
-        path = path.parentNode
+        updateColor(x,y)
     }
-    updateColor()
+   
 }
-*/
+
 
 const Grid = () => {
+
+
+    const canvasRef = useRef(null)
+    const contextRef = useRef(null)
+    const [isDrawing, setIsDrawing] = useState(false)
+    const [startMade, setStartMade] = useState(false)
+    const [goalMade, setGoalMade] = useState(false)
+
     //Set Canvas Dimensions and rebuild grid  
     const generateCTX = () =>{
         scalingX = Math.floor((window.innerWidth*2)/w)-1.5
@@ -93,12 +102,6 @@ const Grid = () => {
             ctx.fillStyle = "#1B2631"
         }
         
-    const canvasRef = useRef(null)
-    const contextRef = useRef(null)
-    const [isDrawing, setIsDrawing] = useState(false)
-    const [startMade, setStartMade] = useState(false)
-    const [endMade, setEndMade] = useState(false)
-        
     //Fixed Size for Now, Optionally Change it for later 
     const size = 25
     w = Math.floor((window.innerWidth - 6 * size)/size);
@@ -113,7 +116,7 @@ const Grid = () => {
     },[])
         
 
-    //When Mouse is clicked take the current positions to calculate which part of the Grid to convert to an obstacle
+    //Draws/Deletes Obstalces on Left Click, or End/Goal on Right Click
     const startDraw = ({nativeEvent}) =>{
         const {offsetX, offsetY} = nativeEvent
         const x = Math.floor(offsetX/scalingX)
@@ -131,14 +134,16 @@ const Grid = () => {
                 setStartMade(false)
                 arr[x][y] = 'a'
             }else if(arr[x][y] === 'e'){//Delete Goal
-                setEndMade(false)
+                setGoalMade(false)
                 arr[x][y] = 'a'
             }else if(!startMade){//Create Start
                 arr[x][y] = 's';
+                start = [x,y]
                 setStartMade(true)
-            }else if(!endMade){//Create Goal
+            }else if(!goalMade){//Create Goal
                 arr[x][y] = 'e';       
-                setEndMade(true)  
+                goal = [x,y]
+                setGoalMade(true)  
                 }
             }
             updateColor(x,y)
@@ -150,15 +155,15 @@ const Grid = () => {
         setIsDrawing(false)
     }
         
-    //Generate the obstacles 
     const draw = ({nativeEvent}) =>{
         if(isDrawing){
             const {offsetX, offsetY} = nativeEvent
             const x = Math.floor(offsetX/scalingX)
             const y = Math.floor(offsetY/scalingY)
-        if(arr[x][y] !== 's' && arr[x][y] !== 'e' ){
-            arr[x][y] = currentColor;
-            updateColor(x,y)
+
+            if(arr[x][y] !== 's' && arr[x][y] !== 'e' ){
+                arr[x][y] = currentColor;
+                updateColor(x,y)
             }
         }
     }    
@@ -170,7 +175,9 @@ const Grid = () => {
                         <Navbar.Brand> Shortest Path Simulator</Navbar.Brand>
                     </Container>
                     <Button className = "mx-auto" 
-                        disabled = {!(startMade  && endMade)}>
+                        disabled = {!(startMade  && goalMade)}
+                        onClick = {visualize}
+                        >
                             Start
                     </Button> 
                 </Navbar>
