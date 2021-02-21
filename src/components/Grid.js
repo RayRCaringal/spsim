@@ -2,15 +2,16 @@
 import React from "react"
 import {useEffect, useRef, useState, useContext } from "react"
 import {scan, AStar} from "../AStar";
-import {Container, Navbar, Jumbotron, Form, Button } from 'react-bootstrap'
+import {Container, Navbar, Jumbotron, Form, Button, Image } from 'react-bootstrap'
 import "../style/grid.css"    
+import Slider from "react-rangeslider";
+import 'react-rangeslider/lib/index.css'
 
 let ctx, w,h,scalingX,scalingY,currentColor, arr
 let start
 let goal
 
 
-console.log(scan([0,0],[46,97]))
 const updateColor = (x,y) =>{
     switch(arr[x][y]){
         case 'b':
@@ -51,15 +52,22 @@ const visualize = ()=>{
 }
 
 
+
+
 const Grid = () => {
+    const update= (v) =>{
+        console.log(v)
+        setNodeSize(v)
+    }
 
-
-    const canvasRef = useRef(null)
-    const contextRef = useRef(null)
+    //const canvasRef = useRef(null)
+    //const contextRef = useRef(null)
     const [isDrawing, setIsDrawing] = useState(false)
     const [startMade, setStartMade] = useState(false)
     const [goalMade, setGoalMade] = useState(false)
+    const [nodeSize, setNodeSize] = useState(25)
 
+    /*
     //Set Canvas Dimensions and rebuild grid  
     const generateCTX = () =>{
         scalingX = Math.floor((window.innerWidth*2)/w)-1.5
@@ -102,6 +110,7 @@ const Grid = () => {
             ctx.fillStyle = "#1B2631"
         }
         
+        */
     //Fixed Size for Now, Optionally Change it for later 
     const size = 25
     w = Math.floor((window.innerWidth - 6 * size)/size);
@@ -110,9 +119,9 @@ const Grid = () => {
     //Run only once 
     useEffect(()=>{
         arr = Array(w).fill().map(() => Array(h).fill('a'));  
-        generateCTX()    
-        window.addEventListener("resize", generateCTX);
-        return () => window.removeEventListener("resize", generateCTX) 
+        //generateCTX()    
+        //window.addEventListener("resize", generateCTX);
+        //return () => window.removeEventListener("resize", generateCTX) 
     },[])
         
 
@@ -146,12 +155,11 @@ const Grid = () => {
                 setGoalMade(true)  
                 }
             }
-            updateColor(x,y)
+            //updateColor(x,y)
         }
         
     //Stop drawing and reset the useState   
     const endDraw = () =>{
-        ctx.fillStyle = "#1B2631"
         setIsDrawing(false)
     }
         
@@ -174,6 +182,14 @@ const Grid = () => {
                     <Container>
                         <Navbar.Brand> Shortest Path Simulator</Navbar.Brand>
                     </Container>
+                    <Form >
+                        <Form.Control 
+                        value = {nodeSize} 
+                        type = "range" 
+                        min = {4}
+                        max = {100}
+                        onChange = {v => update(v.target.value)}/>
+                    </Form>
                     <Button className = "mx-auto" 
                         disabled = {!(startMade  && goalMade)}
                         onClick = {visualize}
@@ -182,13 +198,15 @@ const Grid = () => {
                     </Button> 
                 </Navbar>
                 <Jumbotron className = "p-1">
-                <canvas id = ".node"
-                    onMouseDown = {startDraw}
-                    onContextMenu = {(e)=>{e.preventDefault()}}
-                    onMouseUp = {endDraw}
-                    onMouseMove = {draw}
-                    ref={canvasRef}
-                />
+                <svg viewBox = "0 0 1000 1000" 
+                width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                    <pattern id="Pattern" x="1" y="1" width={1000/nodeSize} height={1000/nodeSize} patternUnits="userSpaceOnUse">
+                        <rect width = {1000/nodeSize-2} height = {1000/nodeSize-2} fill = "white"/>
+                    </pattern>
+                    </defs>
+                    <rect fill="url(#Pattern)" width="100%" height="100%"/>
+                </svg>
                 </Jumbotron>
             </>
             )
