@@ -4,13 +4,11 @@ import {useEffect, useRef, useState, useContext } from "react"
 import {scan, AStar} from "../AStar";
 import {Container, Navbar, Jumbotron, Form, Button, Image } from 'react-bootstrap'
 import "../style/grid.css"    
-import Slider from "react-rangeslider";
-import 'react-rangeslider/lib/index.css'
 
 let ctx, w,h,scalingX,scalingY,currentColor, arr
 let start
 let goal
-
+let scaling
 
 const updateColor = (x,y) =>{
     switch(arr[x][y]){
@@ -55,11 +53,6 @@ const visualize = ()=>{
 
 
 const Grid = () => {
-    const update= (v) =>{
-        console.log(v)
-        setNodeSize(v)
-    }
-
     //const canvasRef = useRef(null)
     //const contextRef = useRef(null)
     const [isDrawing, setIsDrawing] = useState(false)
@@ -70,8 +63,7 @@ const Grid = () => {
     /*
     //Set Canvas Dimensions and rebuild grid  
     const generateCTX = () =>{
-        scalingX = Math.floor((window.innerWidth*2)/w)-1.5
-        scalingY = Math.floor((window.innerHeight*2)/h)-1
+        
         const canvas = canvasRef.current
         canvas.width = window.innerWidth*2
         canvas.height = window.innerHeight*2
@@ -116,6 +108,13 @@ const Grid = () => {
     w = Math.floor((window.innerWidth - 6 * size)/size);
     h = Math.floor((window.innerHeight -6 * size)/size);    
     
+    useEffect(()=>{
+        scaling = (1000/nodeSize)*2.535
+    }, [nodeSize])
+
+    //scalingX = Math.floor((window.innerWidth*2)/w)-1.5
+    //scalingY = Math.floor((window.innerHeight*2)/h)-1 
+
     //Run only once 
     useEffect(()=>{
         arr = Array(w).fill().map(() => Array(h).fill('a'));  
@@ -128,10 +127,13 @@ const Grid = () => {
     //Draws/Deletes Obstalces on Left Click, or End/Goal on Right Click
     const startDraw = ({nativeEvent}) =>{
         const {offsetX, offsetY} = nativeEvent
-        const x = Math.floor(offsetX/scalingX)
-        const y = Math.floor(offsetY/scalingY)
-        //console.log(offsetX + " , " + offsetY )
+        const x = Math.floor(offsetX/scaling)
+       const y = Math.floor(offsetY/scaling)
+        console.log(offsetX + " , " + offsetY )
+       console.log(x + " , " + y )
 
+
+        /*
         //Left Click Only 
         if(nativeEvent.which === 1 && arr[x][y] !== 's' && arr[x][y] !== 'e' ){
            currentColor = arr[x][y] = (arr[x][y] != 'a')? 'a' : 'b'
@@ -156,6 +158,7 @@ const Grid = () => {
                 }
             }
             //updateColor(x,y)
+            */
         }
         
     //Stop drawing and reset the useState   
@@ -168,7 +171,7 @@ const Grid = () => {
             const {offsetX, offsetY} = nativeEvent
             const x = Math.floor(offsetX/scalingX)
             const y = Math.floor(offsetY/scalingY)
-
+            
             if(arr[x][y] !== 's' && arr[x][y] !== 'e' ){
                 arr[x][y] = currentColor;
                 updateColor(x,y)
@@ -188,7 +191,7 @@ const Grid = () => {
                         type = "range" 
                         min = {4}
                         max = {100}
-                        onChange = {v => update(v.target.value)}/>
+                        onChange = {v => setNodeSize(v.target.value)}/>
                     </Form>
                     <Button className = "mx-auto" 
                         disabled = {!(startMade  && goalMade)}
@@ -199,7 +202,8 @@ const Grid = () => {
                 </Navbar>
                 <Jumbotron className = "p-1">
                 <svg viewBox = "0 0 1000 1000" 
-                width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
+                width="100%" height="auto" xmlns="http://www.w3.org/2000/svg"
+                onClick = {startDraw}>
                     <defs>
                     <pattern id="Pattern" x="1" y="1" width={1000/nodeSize} height={1000/nodeSize} patternUnits="userSpaceOnUse">
                         <rect width = {1000/nodeSize-2} height = {1000/nodeSize-2} fill = "white"/>
