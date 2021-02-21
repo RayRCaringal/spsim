@@ -59,6 +59,7 @@ const Grid = () => {
     const [startMade, setStartMade] = useState(false)
     const [goalMade, setGoalMade] = useState(false)
     const [nodeSize, setNodeSize] = useState(25)
+    const gridSVG = useRef(null)
 
     /*
     //Set Canvas Dimensions and rebuild grid  
@@ -128,10 +129,19 @@ const Grid = () => {
     const startDraw = ({nativeEvent}) =>{
         const {offsetX, offsetY} = nativeEvent
         const x = Math.floor(offsetX/scaling)
-       const y = Math.floor(offsetY/scaling)
+        const y = Math.floor(offsetY/scaling)
         console.log(offsetX + " , " + offsetY )
-       console.log(x + " , " + y )
+        console.log(x + " , " + y )
 
+        console.log(gridSVG)
+        const newElement = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
+        newElement.setAttribute("width",(1000/nodeSize))
+        newElement.setAttribute("height",(1000/nodeSize))
+        newElement.setAttribute("x", x*(1000/nodeSize))
+        newElement.setAttribute("y", y*(1000/nodeSize))
+        newElement.setAttribute("fill", "#111519")
+
+        gridSVG.current.appendChild(newElement)
 
         /*
         //Left Click Only 
@@ -177,7 +187,13 @@ const Grid = () => {
                 updateColor(x,y)
             }
         }
-    }    
+    }   
+    
+    const clearGrid = ()=>{
+        const [zero, one, ...rest ] = gridSVG.current.childNodes
+        rest.forEach(node => {node.remove()})
+
+    }
         
         return (
             <>
@@ -193,15 +209,17 @@ const Grid = () => {
                         max = {100}
                         onChange = {v => setNodeSize(v.target.value)}/>
                     </Form>
+                    <Button 
+                        className = "mx-auto" onClick = {clearGrid}>Clear
+                    </Button> 
                     <Button className = "mx-auto" 
                         disabled = {!(startMade  && goalMade)}
-                        onClick = {visualize}
-                        >
+                        onClick = {visualize}>
                             Start
                     </Button> 
                 </Navbar>
                 <Jumbotron className = "p-1">
-                <svg viewBox = "0 0 1000 1000" 
+                <svg ref = {gridSVG} viewBox = "0 0 1000 1000" 
                 width="100%" height="auto" xmlns="http://www.w3.org/2000/svg"
                 onClick = {startDraw}>
                     <defs>
