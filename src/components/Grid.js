@@ -1,8 +1,8 @@
 // For the Grid Component Size N x N
 import React from "react"
-import {useEffect, useRef, useState, useContext } from "react"
-import {scan, AStar} from "../AStar";
-import {Container, Navbar, Jumbotron, Form, Button, Image } from 'react-bootstrap'
+import {useEffect, useRef, useState} from "react"
+import {AStar} from "../AStar";
+import {Container, Navbar, Jumbotron, Form, Button} from 'react-bootstrap'
 import "../style/grid.css"    
 
 let w,h,currentColor, arr, start, goal, scaling
@@ -16,16 +16,12 @@ const Grid = () => {
     const [nodeSize, setNodeSize] = useState(25)
     const gridSVG = useRef(null)
 
-
-    //Fixed Size for Now, Optionally Change it for later  
-    scaling = (1000/nodeSize)*2.535
-
     //Run only once 
     useEffect(()=>{
         refresh()
+        scaling = (1000/nodeSize)*2.535
     },[nodeSize])
         
-
 
     const updateColor = (x,y) =>{
         switch(arr[x][y]){
@@ -95,24 +91,22 @@ const Grid = () => {
         }
         
     //Stop drawing and reset the useState   
-    const endDraw = () =>{
-        setIsDrawing(false)
-    }
+    const endDraw = () =>{setIsDrawing(false)}
         
-   const draw = (x,y)=>{
-    const newElement = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
-    const attrs = {"width": (1000/nodeSize)-2,
-                    "height": (1000/nodeSize)-2,
-                    "x":x*(1000/nodeSize)+1,
-                    "y": y*(1000/nodeSize)+1,
-                    "fill": updateColor(x,y)
-                }
+    const draw = (x,y)=>{
+        const newElement = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
+        const attrs = {"width": (1000/nodeSize)-2,
+                        "height": (1000/nodeSize)-2,
+                        "x":x*(1000/nodeSize)+1,
+                        "y": y*(1000/nodeSize)+1,
+                        "fill": updateColor(x,y)
+                    }
 
-    for(const key in attrs){
-        newElement.setAttribute(key, attrs[key])
-    }
+        for(const key in attrs){
+            newElement.setAttribute(key, attrs[key])
+        }
 
-    gridSVG.current.appendChild(newElement)
+        gridSVG.current.appendChild(newElement)
    }
 
     const drawing = ({nativeEvent}) =>{
@@ -129,7 +123,7 @@ const Grid = () => {
     }   
     
     const refresh = ()=>{
-        arr = Array(nodeSize*1).fill().map(() => Array(nodeSize*1).fill('a'));  
+        arr = Array(parseInt(nodeSize)).fill().map(() => Array(parseInt(nodeSize)).fill('a'));  
         const [zero, one, ...rest ] = gridSVG.current.childNodes
         if(rest) rest.forEach(node => {node.remove()})
         setStartMade(false)
@@ -159,19 +153,19 @@ const Grid = () => {
                     </Button> 
                 </Navbar>
                 <Jumbotron className = "p-1">
-                <svg ref = {gridSVG} viewBox = "0 0 1000 1000" 
-                width="100%" height="auto" xmlns="http://www.w3.org/2000/svg"
-                onMouseDown = {startDraw}
-                onMouseMove = {drawing}
-                onMouseUp = {endDraw}
-                onContextMenu = {(e)=>{e.preventDefault()}}>
-                    <defs>
-                    <pattern id="Pattern" x="1" y="1" width={1000/nodeSize} height={1000/nodeSize} patternUnits="userSpaceOnUse">
-                        <rect width = {1000/nodeSize-2} height = {1000/nodeSize-2} fill = "#F3F3F3"/>
-                    </pattern>
-                    </defs>
-                    <rect fill="url(#Pattern)" width="100%" height="100%"/>
-                </svg>
+                    <svg ref = {gridSVG} viewBox = "0 0 1000 1000" 
+                    width="100%" height="auto" xmlns="http://www.w3.org/2000/svg"
+                    onMouseDown = {startDraw}
+                    onMouseMove = {drawing}
+                    onMouseUp = {endDraw}
+                    onContextMenu = {(e)=>{e.preventDefault()}}>
+                        <defs>
+                        <pattern id="Pattern" x="1" y="1" width={1000/nodeSize} height={1000/nodeSize} patternUnits="userSpaceOnUse">
+                            <rect width = {1000/nodeSize-2} height = {1000/nodeSize-2} fill = "#F3F3F3"/>
+                        </pattern>
+                        </defs>
+                        <rect fill="url(#Pattern)" width="100%" height="100%"/>
+                    </svg>
                 </Jumbotron>
             </>
             )
