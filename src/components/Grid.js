@@ -62,11 +62,12 @@ const Grid = () => {
         const {offsetX, offsetY} = nativeEvent
         const x = Math.floor(offsetX/scaling)
         const y = Math.floor(offsetY/scaling)
-        // console.log(offsetX + " , " + offsetY )
-        //console.log(x + " , " + y )
 
-    
         //Left Click Only 
+        console.log("NodeSize: "+nodeSize)
+        console.log(x + " , " +y )
+        console.log(arr)
+      
         if(nativeEvent.which === 1 && arr[x][y] !== 's' && arr[x][y] !== 'e' ){
            currentColor = arr[x][y] = (arr[x][y] != 'a')? 'a' : 'b'
            draw(x,y)
@@ -128,10 +129,11 @@ const Grid = () => {
     }   
     
     const refresh = ()=>{
-        arr = Array(Math.floor(1000/nodeSize)).fill().map(() => Array(Math.floor(1000/nodeSize)).fill('a'));  
+        arr = Array(nodeSize*1).fill().map(() => Array(nodeSize*1).fill('a'));  
         const [zero, one, ...rest ] = gridSVG.current.childNodes
-        rest.forEach(node => {node.remove()})
-
+        if(rest) rest.forEach(node => {node.remove()})
+        setStartMade(false)
+        setGoalMade(false)
     }
         
         return (
@@ -148,8 +150,7 @@ const Grid = () => {
                         max = {100}
                         onChange = {v => setNodeSize(v.target.value)}/>
                     </Form>
-                    <Button 
-                        className = "mx-auto" onClick = {refresh}>Refresh
+                    <Button className = "mx-auto" onClick = {refresh}>Refresh
                     </Button> 
                     <Button className = "mx-auto" 
                         disabled = {!(startMade  && goalMade)}
