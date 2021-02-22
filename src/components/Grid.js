@@ -4,6 +4,7 @@ import {useEffect, useRef, useState} from "react"
 import {AStar} from "../AStar";
 import {Container, Navbar, Jumbotron, Form, Button} from 'react-bootstrap'
 import "../style/grid.css"    
+import { useSpring, animated } from "react-spring";
 
 let w,h,currentColor, arr, start, goal, scaling
 
@@ -60,9 +61,6 @@ const Grid = () => {
         const y = Math.floor(offsetY/scaling)
 
         //Left Click Only 
-        console.log("NodeSize: "+nodeSize)
-        console.log(x + " , " +y )
-        console.log(arr)
       
         if(nativeEvent.which === 1 && arr[x][y] !== 's' && arr[x][y] !== 'e' ){
            currentColor = arr[x][y] = (arr[x][y] != 'a')? 'a' : 'b'
@@ -153,6 +151,7 @@ const Grid = () => {
                     </Button> 
                 </Navbar>
                 <Jumbotron className = "p-1">
+                    <animated.div>
                     <svg ref = {gridSVG} viewBox = "0 0 1000 1000" 
                     width="100%" height="auto" xmlns="http://www.w3.org/2000/svg"
                     onMouseDown = {startDraw}
@@ -166,6 +165,7 @@ const Grid = () => {
                         </defs>
                         <rect fill="url(#Pattern)" width="100%" height="100%"/>
                     </svg>
+                    </animated.div>
                 </Jumbotron>
             </>
             )
