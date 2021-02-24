@@ -1,29 +1,44 @@
 // For the Grid Component Size N x N
-import React from "react"
-import {useEffect, useRef, useState} from "react"
+import {useEffect, useRef, useState, createRef, createElement} from "react"
 import {AStar} from "../AStar";
 import {Container, Navbar, Jumbotron, Form, Button} from 'react-bootstrap'
 import "../style/grid.css"    
 import { useSpring, animated } from "react-spring";
+import Trail from "./Trail";
 
 let w,h,currentColor, arr, start, goal, scaling
 
 
 
 const Grid = () => {
+
+    //Manage Click and Draw 
     const [isDrawing, setIsDrawing] = useState(false)
     const [startMade, setStartMade] = useState(false)
     const [goalMade, setGoalMade] = useState(false)
+
+    //Manage Grid 
     const [nodeSize, setNodeSize] = useState(25)
+
+    //SVG array for dynamic created SVGs 
+    const svgRef = useRef([])
+
+    //Reference for SVG, TO BE DEPRECIATED 
     const gridSVG = useRef(null)
+    const trailRef = useRef(null)
+
+    const [open, toggle] = useState(false)
+
+   // const props = useSpring({from:{transform: 'scale(0)'}, to: { transform: 'scale(1)'},config: {duration: 250}})
+        
 
     //Run only once 
     useEffect(()=>{
         refresh()
         scaling = (1000/nodeSize)*2.535
     },[nodeSize])
-        
 
+    
     const updateColor = (x,y) =>{
         switch(arr[x][y]){
             case 'b':
@@ -49,7 +64,7 @@ const Grid = () => {
             path = path.parentNode
             let [x,y] = path.position
             arr[x][y] = 'p'
-            draw(x,y)
+            draw(x,y,trailRef)
         }
        
     }
@@ -64,7 +79,7 @@ const Grid = () => {
       
         if(nativeEvent.which === 1 && arr[x][y] !== 's' && arr[x][y] !== 'e' ){
            currentColor = arr[x][y] = (arr[x][y] != 'a')? 'a' : 'b'
-           draw(x,y)
+           draw(x,y, gridSVG)
            setIsDrawing(true)
         }
         //Right Click
@@ -85,26 +100,27 @@ const Grid = () => {
                 setGoalMade(true)  
                 }
             }
-            draw(x,y)
+            draw(x,y, gridSVG)
         }
         
     //Stop drawing and reset the useState   
     const endDraw = () =>{setIsDrawing(false)}
         
-    const draw = (x,y)=>{
+    //Create SVG elements 
+    const draw = (x,y, ref)=>{
         const newElement = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
         const attrs = {"width": (1000/nodeSize)-2,
                         "height": (1000/nodeSize)-2,
                         "x":x*(1000/nodeSize)+1,
                         "y": y*(1000/nodeSize)+1,
-                        "fill": updateColor(x,y)
+                        "fill": updateColor(x,y),
                     }
 
         for(const key in attrs){
             newElement.setAttribute(key, attrs[key])
         }
 
-        gridSVG.current.appendChild(newElement)
+        ref.current.appendChild(newElement)
    }
 
     const drawing = ({nativeEvent}) =>{
@@ -115,7 +131,7 @@ const Grid = () => {
             
             if(arr[x][y] !== 's' && arr[x][y] !== 'e' && arr[x][y] != currentColor){
                 arr[x][y] = currentColor
-                draw(x,y)
+                draw(x,y, gridSVG)
             }
         }
     }   
@@ -142,8 +158,7 @@ const Grid = () => {
                         max = {100}
                         onChange = {v => setNodeSize(v.target.value)}/>
                     </Form>
-                    <Button className = "mx-auto" onClick = {refresh}>Refresh
-                    </Button> 
+                    <Button className = "mx-auto" onClick = {refresh}>Refresh</Button> 
                     <Button className = "mx-auto" 
                         disabled = {!(startMade  && goalMade)}
                         onClick = {visualize}>
@@ -151,21 +166,22 @@ const Grid = () => {
                     </Button> 
                 </Navbar>
                 <Jumbotron className = "p-1">
-                    <animated.div>
-                    <svg ref = {gridSVG} viewBox = "0 0 1000 1000" 
-                    width="100%" height="auto" xmlns="http://www.w3.org/2000/svg"
-                    onMouseDown = {startDraw}
-                    onMouseMove = {drawing}
-                    onMouseUp = {endDraw}
-                    onContextMenu = {(e)=>{e.preventDefault()}}>
-                        <defs>
-                        <pattern id="Pattern" x="1" y="1" width={1000/nodeSize} height={1000/nodeSize} patternUnits="userSpaceOnUse">
-                            <rect width = {1000/nodeSize-2} height = {1000/nodeSize-2} fill = "#F3F3F3"/>
-                        </pattern>
-                        </defs>
-                        <rect fill="url(#Pattern)" width="100%" height="100%"/>
-                    </svg>
-                    </animated.div>
+                        <svg class = "test" ref = {gridSVG} viewBox = "0 0 1000 1000" 
+                        width="100%" height="auto" xmlns="http://www.w3.org/2000/svg"
+                        onMouseDown = {startDraw}
+                        onMouseMove = {drawing}
+                        onMouseUp = {endDraw}
+                        onContextMenu = {(e)=>{e.preventDefault()}}>   
+                            <defs>
+                            <pattern id="Pattern" x="1" y="1" width={1000/nodeSize} height={1000/nodeSize} patternUnits="userSpaceOnUse">
+                                <rect width = {1000/nodeSize-2} height = {1000/nodeSize-2} fill = "#F3F3F3"/>
+                            </pattern>
+                            </defs>     
+                            <rect fill="url(#Pattern)" width="100%" height="100%"/>
+                        </svg>
+                        <Trail class = "test" open={open} ref = {trailRef}>
+                                <div ></div>
+                            </Trail>
                 </Jumbotron>
             </>
             )
