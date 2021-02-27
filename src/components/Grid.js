@@ -6,7 +6,7 @@ import "../style/grid.css"
 import { useSpring, animated } from "react-spring";
 import Trail from "./Trail";
 
-let w,h,currentColor, arr, start, goal, scaling
+let currentColor, arr, start, goal, scaling
 
 
 
@@ -29,8 +29,7 @@ const Grid = () => {
 
     const [open, toggle] = useState(false)
 
-   // const props = useSpring({from:{transform: 'scale(0)'}, to: { transform: 'scale(1)'},config: {duration: 250}})
-        
+   // const props = useSpring({from:{transform: 'scale(0)'}, to: { transform: 'scale(1)'},config: {duration: 250}})     
 
     //Run only once 
     useEffect(()=>{
@@ -58,7 +57,8 @@ const Grid = () => {
     const visualize = ()=>{
         //Path is the Final Node, should either be the goal or the node before the goal. 
         let path = AStar(start, goal, 1, arr)
-    
+        let pathSVG = []
+
         //Trace the shortest path via the parentNode. Update grid with g 
         while(JSON.stringify(path.parentNode.position) != JSON.stringify(path.parentNode.parentNode)){
             path = path.parentNode
@@ -66,6 +66,7 @@ const Grid = () => {
             arr[x][y] = 'p'
             draw(x,y,trailRef)
         }
+        toggle(!open)
        
     }
 
@@ -166,22 +167,24 @@ const Grid = () => {
                     </Button> 
                 </Navbar>
                 <Jumbotron className = "p-1">
-                        <svg class = "test" ref = {gridSVG} viewBox = "0 0 1000 1000" 
+                        <animated.svg class = "test" ref = {gridSVG} viewBox = "0 0 1000 1000" 
                         width="100%" height="auto" xmlns="http://www.w3.org/2000/svg"
                         onMouseDown = {startDraw}
                         onMouseMove = {drawing}
                         onMouseUp = {endDraw}
                         onContextMenu = {(e)=>{e.preventDefault()}}>   
-                            <defs>
-                            <pattern id="Pattern" x="1" y="1" width={1000/nodeSize} height={1000/nodeSize} patternUnits="userSpaceOnUse">
-                                <rect width = {1000/nodeSize-2} height = {1000/nodeSize-2} fill = "#F3F3F3"/>
-                            </pattern>
-                            </defs>     
-                            <rect fill="url(#Pattern)" width="100%" height="100%"/>
-                        </svg>
-                        <Trail class = "test" open={open} ref = {trailRef}>
-                                <div ></div>
+                            <g>
+                                <defs>
+                                <pattern id="Pattern" x="1" y="1" width={1000/nodeSize} height={1000/nodeSize} patternUnits="userSpaceOnUse">
+                                    <rect width = {1000/nodeSize-2} height = {1000/nodeSize-2} fill = "#F3F3F3"/>
+                                </pattern>
+                                </defs>     
+                                <rect fill="url(#Pattern)" width="100%" height="100%"/>
+                            </g>
+                            <Trail open = {open} ref = {trailRef}>
+                                <></>
                             </Trail>
+                        </animated.svg>
                 </Jumbotron>
             </>
             )
