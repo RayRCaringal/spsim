@@ -30,7 +30,6 @@ const Grid = () => {
     const [open, toggle] = useState(false)
 
    // const props = useSpring({from:{transform: 'scale(0)'}, to: { transform: 'scale(1)'},config: {duration: 250}})     
-
     //Run only once 
     useEffect(()=>{
         refresh()
@@ -66,12 +65,15 @@ const Grid = () => {
             arr[x][y] = 'p'
             draw(x,y,trailRef)
         }
+
+
         toggle(!open)
        
     }
 
     //Draws/Deletes Obstalces on Left Click, or End/Goal on Right Click
     const startDraw = ({nativeEvent}) =>{
+        console.log("Here")
         const {offsetX, offsetY} = nativeEvent
         const x = Math.floor(offsetX/scaling)
         const y = Math.floor(offsetY/scaling)
@@ -121,6 +123,11 @@ const Grid = () => {
             newElement.setAttribute(key, attrs[key])
         }
 
+        if(ref == trailRef){
+            newElement.setAttribute("x", x*(1000/nodeSize)+1)
+            newElement.setAttribute("y", y*(1000/nodeSize)+1)
+        }
+        
         ref.current.appendChild(newElement)
    }
 
@@ -166,26 +173,30 @@ const Grid = () => {
                             Start
                     </Button> 
                 </Navbar>
-                <Jumbotron className = "p-1">
-                        <animated.svg class = "test" ref = {gridSVG} viewBox = "0 0 1000 1000" 
-                        width="100%" height="auto" xmlns="http://www.w3.org/2000/svg"
-                        onMouseDown = {startDraw}
-                        onMouseMove = {drawing}
-                        onMouseUp = {endDraw}
-                        onContextMenu = {(e)=>{e.preventDefault()}}>   
-                            <g>
-                                <defs>
-                                <pattern id="Pattern" x="1" y="1" width={1000/nodeSize} height={1000/nodeSize} patternUnits="userSpaceOnUse">
-                                    <rect width = {1000/nodeSize-2} height = {1000/nodeSize-2} fill = "#F3F3F3"/>
-                                </pattern>
-                                </defs>     
-                                <rect fill="url(#Pattern)" width="100%" height="100%"/>
-                            </g>
-                            <Trail open = {open} ref = {trailRef}>
-                                <></>
-                            </Trail>
-                        </animated.svg>
-                </Jumbotron>
+                <div>
+                       
+                        <Trail open = {open} ref = {trailRef}
+                          onMouseDown = {startDraw}
+                          onMouseMove = {drawing}
+                          onMouseUp = {endDraw}
+                          onContextMenu = {(e)=>{e.preventDefault()}}>
+                             <></>
+                        </Trail>
+                        <div class = "test3">
+                            <svg ref = {gridSVG} viewBox = "0 0 1000 1000" 
+                            width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">   
+                                <g>
+                                    <defs>
+                                    <pattern id="Pattern" x="1" y="1" width={1000/nodeSize} height={1000/nodeSize} patternUnits="userSpaceOnUse">
+                                        <rect width = {1000/nodeSize-2} height = {1000/nodeSize-2} fill = "#F3F3F3"/>
+                                    </pattern>
+                                    </defs>     
+                                    <rect fill="url(#Pattern)" width="100%" height="100%"/>
+                                </g>
+                              
+                            </svg>
+                        </div>
+                </div>
             </>
             )
         }
