@@ -9,7 +9,6 @@ import Trail from "./Trail";
 let currentColor, arr, start, goal, scaling
 
 
-
 const Grid = () => {
 
     //Manage Click and Draw 
@@ -25,9 +24,13 @@ const Grid = () => {
 
     //Reference for SVG, TO BE DEPRECIATED 
     const gridSVG = useRef(null)
-    const trailRef = useRef(null)
+    //const trailRef = useRef(null)
 
     const [open, toggle] = useState(false)
+
+
+    const [pathSVG, setPathSVG] = useState([<rect width = "0" height = "0"></rect>])
+
 
    // const props = useSpring({from:{transform: 'scale(0)'}, to: { transform: 'scale(1)'},config: {duration: 250}})     
     //Run only once 
@@ -56,24 +59,22 @@ const Grid = () => {
     const visualize = ()=>{
         //Path is the Final Node, should either be the goal or the node before the goal. 
         let path = AStar(start, goal, 1, arr)
-        let pathSVG = []
-
+        let elementList = []
         //Trace the shortest path via the parentNode. Update grid with g 
         while(JSON.stringify(path.parentNode.position) != JSON.stringify(path.parentNode.parentNode)){
             path = path.parentNode
             let [x,y] = path.position
             arr[x][y] = 'p'
-            draw(x,y,trailRef)
+            const newElement = <rect width = {(1000/nodeSize)-2} height = {(1000/nodeSize)-2}  x = {x*(1000/nodeSize)+1} y= {y*(1000/nodeSize)+1} fill = {updateColor(x,y)}/>
+            elementList.push(newElement)
         }
+        elementList.reverse()
+        setPathSVG(elementList)
 
-
-        toggle(!open)
-       
     }
 
     //Draws/Deletes Obstalces on Left Click, or End/Goal on Right Click
     const startDraw = ({nativeEvent}) =>{
-        console.log("Here")
         const {offsetX, offsetY} = nativeEvent
         const x = Math.floor(offsetX/scaling)
         const y = Math.floor(offsetY/scaling)
@@ -123,11 +124,6 @@ const Grid = () => {
             newElement.setAttribute(key, attrs[key])
         }
 
-        if(ref == trailRef){
-            newElement.setAttribute("x", x*(1000/nodeSize)+1)
-            newElement.setAttribute("y", y*(1000/nodeSize)+1)
-        }
-        
         ref.current.appendChild(newElement)
    }
 
@@ -167,6 +163,7 @@ const Grid = () => {
                         onChange = {v => setNodeSize(v.target.value)}/>
                     </Form>
                     <Button className = "mx-auto" onClick = {refresh}>Refresh</Button> 
+                    <Button className = "mx-auto" onClick = {()=>{toggle(!open)}}>Toggle</Button> 
                     <Button className = "mx-auto" 
                         disabled = {!(startMade  && goalMade)}
                         onClick = {visualize}>
@@ -175,15 +172,18 @@ const Grid = () => {
                 </Navbar>
                 <div>
                        
-                        <Trail open = {open} ref = {trailRef}
-                          onMouseDown = {startDraw}
+                        <Trail   onMouseDown = {startDraw}
                           onMouseMove = {drawing}
                           onMouseUp = {endDraw}
-                          onContextMenu = {(e)=>{e.preventDefault()}}>
-                             <></>
+                          onContextMenu = {(e)=>{e.preventDefault()}}
+                          open = {open} items = {pathSVG}>
                         </Trail>
-                        <div class = "test3">
-                            <svg ref = {gridSVG} viewBox = "0 0 1000 1000" 
+                        <div className = "test3">
+                            <svg   onMouseDown = {startDraw}
+                          onMouseMove = {drawing}
+                          onMouseUp = {endDraw}
+                          onContextMenu = {(e)=>{e.preventDefault()}}
+                          ref = {gridSVG} viewBox = "0 0 1000 1000" 
                             width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">   
                                 <g>
                                     <defs>
