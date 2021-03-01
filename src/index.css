@@ -17,13 +17,13 @@ body > #root > div {
   height: 100vh;
 }
 
-.test3{
+.board{
   left: 0;
   right: 0;
   height: auto;
   }
 
-.test{
+.node{
   position: absolute;
   width: 100%;
   height: auto;

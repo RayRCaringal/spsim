@@ -11,17 +11,15 @@ const Trail =({open, items, ...props}) => {
     })
     return (
         <div {...props}>
-          <div>
               {trail.map(({width:w, ...rest},index) => (
                 <a.div style = {{width: w.interpolate((w) =>`${w}%`)}}
-                className = "test" key = {items[index]}>
+                className = "node" key = {items[index]}>
                     <a.svg viewBox = "0 0 1000 1000"  style = {{ ...rest}}>
                         {items[index]}
                     </a.svg>
                 </a.div>
           
           ))}
-          </div>
         </div>
     )
   }
