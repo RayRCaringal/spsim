@@ -60,7 +60,7 @@ const Grid = () => {
         //Trace the shortest path via the parentNode. Update grid with g 
 
         visited.forEach(cord =>{ 
-            if(cord != start && cord != goal){
+            if(JSON.stringify(cord) != JSON.stringify(start) && JSON.stringify(cord) != JSON.stringify(goal)){
                 let [x,y] = cord
                 const newElement = <rect width={(1000 / nodeSize) - 2} height={(1000 / nodeSize) - 2} x={x * (1000 / nodeSize) + 1} y={y * (1000 / nodeSize) + 1} fill="#F59350" />
                 visitedList.push(newElement)
