@@ -16,20 +16,16 @@ const Grid = () => {
     const [startMade, setStartMade] = useState(false)
     const [goalMade, setGoalMade] = useState(false)
 
-    //Manage Grid 
+    //Manage Grid Size
     const [nodeSize, setNodeSize] = useState(25)
 
-    //SVG array for dynamic created SVGs 
-    const svgRef = useRef([])
-
-    //Reference for SVG, TO BE DEPRECIATED 
+    //Reference for Background Grid
     const gridSVG = useRef(null)
-    //const trailRef = useRef(null)
 
+    //Animation States
     const [open, toggle] = useState(false)
-
-
     const [pathSVG, setPathSVG] = useState([<rect width="0" height="0"></rect>])
+    const [scanAnimation, setScanAnimation] = useState([<rect width="0" height="0"></rect>])
 
 
     // const props = useSpring({from:{transform: 'scale(0)'}, to: { transform: 'scale(1)'},config: {duration: 250}})     
@@ -58,9 +54,20 @@ const Grid = () => {
 
     const visualize = () => {
         //Path is the Final Node, should either be the goal or the node before the goal. 
-        let path = AStar(start, goal, 1, arr)
+        let {path,visited} = AStar(start, goal, 1, arr)
         let elementList = []
+        let visitedList = []
         //Trace the shortest path via the parentNode. Update grid with g 
+
+        visited.forEach(cord =>{ 
+            if(cord != start && cord != goal){
+                let [x,y] = cord
+                const newElement = <rect width={(1000 / nodeSize) - 2} height={(1000 / nodeSize) - 2} x={x * (1000 / nodeSize) + 1} y={y * (1000 / nodeSize) + 1} fill="#F59350" />
+                visitedList.push(newElement)
+            }
+        })
+        setScanAnimation(visitedList)
+
         while (JSON.stringify(path.parentNode.position) != JSON.stringify(path.parentNode.parentNode)) {
             path = path.parentNode
             let [x, y] = path.position
@@ -83,7 +90,7 @@ const Grid = () => {
 
         if (nativeEvent.which === 1 && arr[x][y] !== 's' && arr[x][y] !== 'e') {
             currentColor = arr[x][y] = (arr[x][y] != 'a') ? 'a' : 'b'
-            draw(x, y, gridSVG)
+            draw(x, y)
             setIsDrawing(true)
         }
         //Right Click
@@ -104,14 +111,14 @@ const Grid = () => {
                 setGoalMade(true)
             }
         }
-        draw(x, y, gridSVG)
+        draw(x, y)
     }
 
     //Stop drawing and reset the useState   
     const endDraw = () => { setIsDrawing(false) }
 
     //Create SVG elements 
-    const draw = (x, y, ref) => {
+    const draw = (x, y) => {
         const newElement = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
         const attrs = {
             "width": (1000 / nodeSize) - 2,
@@ -125,7 +132,7 @@ const Grid = () => {
             newElement.setAttribute(key, attrs[key])
         }
 
-        ref.current.appendChild(newElement)
+        gridSVG.current.appendChild(newElement)
     }
 
     const drawing = ({ nativeEvent }) => {
@@ -136,7 +143,7 @@ const Grid = () => {
 
             if (arr[x][y] !== 's' && arr[x][y] !== 'e' && arr[x][y] != currentColor) {
                 arr[x][y] = currentColor
-                draw(x, y, gridSVG)
+                draw(x, y)
             }
         }
     }
@@ -176,13 +183,10 @@ const Grid = () => {
                     onMouseMove={drawing}
                     onMouseUp={endDraw}
                     onContextMenu={(e) => { e.preventDefault() }}
-                    open={open} items={pathSVG}/>
+                    open={open} path={pathSVG} scan = {scanAnimation}/>
+
                 <div className="board">
-                    <svg onMouseDown={startDraw}
-                        onMouseMove={drawing}
-                        onMouseUp={endDraw}
-                        onContextMenu={(e) => { e.preventDefault() }}
-                        ref={gridSVG} viewBox="0 0 1000 1000"
+                    <svg ref={gridSVG} viewBox="0 0 1000 1000"
                         width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
                         <g>
                             <defs>

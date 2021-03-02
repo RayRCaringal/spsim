@@ -59,7 +59,11 @@ export const AStar = (start, goal, weight, grid)=>{
             //Goal Node has been found 
             console.log(node.position)
             if(JSON.stringify(goal) == JSON.stringify(node.position)){
-                return node
+                return {
+                    path:node,
+                    visited: visited
+                }
+
             }
 
             const neighbors = scan(node.position, [grid.length, grid[0].length])
