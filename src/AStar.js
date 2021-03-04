@@ -60,8 +60,8 @@ export const AStar = (start, goal, weight, grid)=>{
             console.log(node.position)
             if(JSON.stringify(goal) == JSON.stringify(node.position)){
                 return {
+                    visited ,
                     path:node,
-                    visited: visited
                 }
 
             }
@@ -86,7 +86,10 @@ export const AStar = (start, goal, weight, grid)=>{
         }
         
     }
-    return [-1,-1]
+    return {
+        visited ,
+        path: null,
+    }
 
 }
 

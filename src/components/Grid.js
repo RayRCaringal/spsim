@@ -68,16 +68,17 @@ const Grid = () => {
         })
         setScanAnimation(visitedList)
 
-        while (JSON.stringify(path.parentNode.position) != JSON.stringify(path.parentNode.parentNode)) {
-            path = path.parentNode
-            let [x, y] = path.position
-            arr[x][y] = 'p'
-            const newElement = <rect width={(1000 / nodeSize) - 2} height={(1000 / nodeSize) - 2} x={x * (1000 / nodeSize) + 1} y={y * (1000 / nodeSize) + 1} fill={updateColor(x, y)} />
-            elementList.push(newElement)
+        if(path != null){
+            while (JSON.stringify(path.parentNode.position) != JSON.stringify(path.parentNode.parentNode)) {
+                path = path.parentNode
+                let [x, y] = path.position
+                arr[x][y] = 'p'
+                const newElement = <rect width={(1000 / nodeSize) - 2} height={(1000 / nodeSize) - 2} x={x * (1000 / nodeSize) + 1} y={y * (1000 / nodeSize) + 1} fill={updateColor(x, y)} />
+                elementList.push(newElement)
+            }
+            elementList.reverse()
+            setPathSVG(elementList)
         }
-        elementList.reverse()
-        setPathSVG(elementList)
-
     }
 
     //Draws/Deletes Obstalces on Left Click, or End/Goal on Right Click
@@ -152,6 +153,8 @@ const Grid = () => {
         arr = Array(parseInt(nodeSize)).fill().map(() => Array(parseInt(nodeSize)).fill('a'));
         const [zero, ...rest] = gridSVG.current.childNodes
         if (rest) rest.forEach(node => { node.remove() })
+        setPathSVG([<rect width="0" height="0"></rect>])
+        setScanAnimation([<rect width="0" height="0"></rect>])
         setStartMade(false)
         setGoalMade(false)
     }
