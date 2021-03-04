@@ -150,7 +150,7 @@ const Grid = () => {
 
     const refresh = () => {
         arr = Array(parseInt(nodeSize)).fill().map(() => Array(parseInt(nodeSize)).fill('a'));
-        const [zero, one, ...rest] = gridSVG.current.childNodes
+        const [zero, ...rest] = gridSVG.current.childNodes
         if (rest) rest.forEach(node => { node.remove() })
         setStartMade(false)
         setGoalMade(false)
